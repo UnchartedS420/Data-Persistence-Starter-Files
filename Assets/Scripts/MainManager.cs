@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text NameBestScore;
     
     private bool m_Started = false;
     private int m_Points;
@@ -36,6 +38,9 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        NameBestScore.text = "Best Score: " + " " + DataToJSON.Instance.score + " " + DataToJSON.Instance.playerName;
+
     }
 
     private void Update()
@@ -69,8 +74,14 @@ public class MainManager : MonoBehaviour
     }
 
     public void GameOver()
-    {
+    {  
         m_GameOver = true;
+
+        DataToJSON.Instance.score = m_Points;
+
         GameOverText.SetActive(true);
+        NameBestScore.text = "Best Score: " + " " + DataToJSON.Instance.score + " " + DataToJSON.Instance.playerName;
+
+        DataToJSON.Instance.Save();
     }
 }
