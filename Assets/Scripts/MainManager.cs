@@ -14,14 +14,18 @@ public class MainManager : MonoBehaviour
     public Text ScoreText;
     public GameObject GameOverText;
     public Text NameBestScore;
+    public Button saveButton;
     
     private bool m_Started = false;
     private int m_Points;
+    private string playerName;
     
     private bool m_GameOver = false;
 
     
-    // Start is called before the first frame update
+    void Awake() {
+        playerName = SceneDataCarrier.playerName;
+    }
     void Start()
     {
         const float step = 0.6f;
@@ -39,7 +43,7 @@ public class MainManager : MonoBehaviour
             }
         }
 
-        NameBestScore.text = "Best Score: " + " " + DataToJSON.Instance.score + " " + DataToJSON.Instance.playerName;
+        NameBestScore.text = "Best Score: " + " " + m_Points + " " + playerName;
 
     }
 
@@ -60,11 +64,14 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                DataToJSON.Instance.Load();
             }
         }
+
     }
 
     void AddPoint(int point)
@@ -76,12 +83,25 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {  
         m_GameOver = true;
-
-        DataToJSON.Instance.score = m_Points;
-
         GameOverText.SetActive(true);
-        NameBestScore.text = "Best Score: " + " " + DataToJSON.Instance.score + " " + DataToJSON.Instance.playerName;
+        NameBestScore.text = "Best Score: " + " " + m_Points + " " + playerName;
+        CreateSave();
+        saveButton.gameObject.SetActive(true);
+    }
 
-        DataToJSON.Instance.Save();
+    public DataToSave CreateSave() {
+        DataToSave save = new DataToSave();
+
+        save.scores.Add(m_Points);
+        save.playerNames.Add(playerName);
+        //save.score = m_Points;
+        //save.playerName = playerName;
+
+        return save;
+    }
+
+    public void SaveButton() {
+        
+        DataToJSON.Instance.Save(); 
     }
 }

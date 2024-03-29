@@ -15,8 +15,6 @@ public class StartMenuManager : MonoBehaviour
 
     public void StartGame() {
         SceneDataCarrier.playerName = playerText.text;
-        //DataToJSON.Instance.playerName = SceneDataCarrier.playerName;
-        DataToJSON.Instance.Load();
         SceneManager.LoadScene(1);
     }
 
