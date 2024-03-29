@@ -20,6 +20,7 @@ public class DataToJSON : MonoBehaviour
         public string playerName;
     }
 
+    //JSON savefile location: C:\Users\bmgib\AppData\LocalLow\DefaultCompany\SimpleBreakout
     public void Save() {
         SaveData data = new SaveData();
 
@@ -37,12 +38,22 @@ public class DataToJSON : MonoBehaviour
 
         if (File.Exists(path)) {
 
-            string jsonScore = File.ReadAllText(path);
+            string json = File.ReadAllText(path);
 
-            SaveData data = JsonUtility.FromJson<SaveData>(jsonScore);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            if (data.playerName == SceneDataCarrier.playerName) {
+                playerName = SceneDataCarrier.playerName;
+                score = data.score;
+            } 
+            else if(data.playerName != SceneDataCarrier.playerName) {
+                playerName = SceneDataCarrier.playerName;
+                Save();
+            }
+
+
             
-            score = data.score;
-            playerName = data.playerName;
+            //playerName = data.playerName;
         }
     }
 
