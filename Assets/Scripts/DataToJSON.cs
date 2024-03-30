@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using System.IO;
 using UnityEngine.SceneManagement;
 
@@ -9,53 +7,97 @@ public class DataToJSON : MonoBehaviour
 {
     public static DataToJSON Instance;
     void Awake() {
-        Instance = this;
-            
+        if (Instance != null && Instance != this) {
+            Destroy(this);
+        }else{
+            Instance = this;
+        }
     }
-    
+
     private MainManager mainManager;
+    private HighScoreBoard highScoreBoard;
+    public HighScore highScore = new HighScore();
 
-    public int score;
-    public string playerName;
 
-
+    private void TextToJsonSave() {
+        highScore.name = mainManager.playerName;
+        //int points;
+        //int.TryParse(mainManager.m_Points, out points);
+        highScore.score = mainManager.m_Points.ToString();
+    }
+   
     //JSON savefile location: C:\Users\bmgib\AppData\LocalLow\DefaultCompany\SimpleBreakout
     public void Save() {
         mainManager = GameObject.Find("MainManager").GetComponent<MainManager>();
-        DataToSave data = mainManager.CreateSave();
 
-        //data.score = score;
-        //data.playerName = playerName;
+        TextToJsonSave();
 
-        string json = JsonUtility.ToJson(data);
+        highScore.highScores.Add(new HighScores(mainManager.playerName, mainManager.m_Points.ToString()));
+        
+        string highScoreData = JsonUtility.ToJson(highScore, true);
 
-        Debug.Log("Saving as JSON: " + json);
+        Debug.Log("Save Successful.");
 
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+        File.WriteAllText(Application.persistentDataPath + "/BrickBreakerHighScores.json", highScoreData);
     }
 
     public void Load() {
 
-        string path = Application.persistentDataPath + "/savefile.json";
+        highScoreBoard = GameObject.Find("High Score Board").GetComponent<HighScoreBoard>();
+        highScoreBoard.SetPopulatedVariablesToZero();
+
+        string path = Application.persistentDataPath + "/BrickBreakerHighScores.json";
 
         if (File.Exists(path)) {
 
-            string json = File.ReadAllText(path);
+            string highScoreData = File.ReadAllText(path);
 
-            DataToSave data = JsonUtility.FromJson<DataToSave>(json);
+            highScore = JsonUtility.FromJson<HighScore>(highScoreData);
 
-            Debug.Log("Loading as JSON: " + json);
-
-         /*/   if (data.playerName == SceneDataCarrier.playerName) {
-                playerName = SceneDataCarrier.playerName;
-                score = data.score;
-            } 
-            else if(data.playerName != SceneDataCarrier.playerName) {
-                playerName = SceneDataCarrier.playerName;
-                Save();
-            }
-            //playerName = data.playerName; /*/
+            Debug.Log("Load Successful.");
+        }else{
+            Debug.Log("File does not exist!");
+            Debug.Log("Attempting to create file.");
+            string highScoreData = JsonUtility.ToJson(highScore, true);
+            File.WriteAllText(Application.persistentDataPath + "/BrickBreakerHighScores.json", highScoreData);
+            Debug.Log("File creation Successful.");
         }
+        highScoreBoard.HighScoreFunctions();
+        highScoreBoard.jsonIsLoaded = true;
     }
 
+    public void DeleteJsonFile() {
+        if (highScoreBoard.jsonIsLoaded) {
+            File.Delete(Application.persistentDataPath + "/BrickBreakerHighScores.json");
+            Debug.Log("Deleted Successfully.");
+
+            highScoreBoard.SetPopulatedVariablesToZero();
+            highScoreBoard.DestroyHighScoreEntries();
+            highScore.highScores.Clear();
+            highScoreBoard.jsonIsLoaded = false;
+
+        }else{
+            Debug.Log("Could Not Delete File. Does not Exist.");
+        }
+    }
+}   
+
+[System.Serializable]
+public class HighScore {
+
+    public string name;
+    public string score;
+    public List<HighScores> highScores = new List<HighScores>();
+}
+
+
+[System.Serializable]
+public class HighScores {
+    public string playerName;
+    public string playerScore;
+
+    public HighScores(string playerName, string playerScore) {
+        this.playerName = playerName;
+        this.playerScore = playerScore;
+    }
 }

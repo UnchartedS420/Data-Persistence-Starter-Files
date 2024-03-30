@@ -13,18 +13,18 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public GameObject LevelCompletedText;
     public Text NameBestScore;
-    public Button saveButton;
-    
+    public Button deleteHighScoresButton;
+   
     private bool m_Started = false;
-    private int m_Points;
-    private string playerName;
-    
+    public int m_Points;
+    public string playerName;
     private bool m_GameOver = false;
-
     
     void Awake() {
         playerName = SceneDataCarrier.playerName;
+        DataToJSON.Instance.Load();
     }
     void Start()
     {
@@ -42,9 +42,12 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
-
-        NameBestScore.text = "Best Score: " + " " + m_Points + " " + playerName;
-
+        if (DataToJSON.Instance.highScore.highScores.Count == 0) {
+            NameBestScore.text = "Best Score: " + " " + playerName + " " + m_Points;
+        }else{
+            NameBestScore.text = "Best Score: " + " " + DataToJSON.Instance.highScore.highScores[0].playerName + " " + DataToJSON.Instance.highScore.highScores[0].playerScore;
+        }
+        deleteHighScoresButton.onClick.AddListener(DataToJSON.Instance.DeleteJsonFile);
     }
 
     private void Update()
@@ -67,11 +70,17 @@ public class MainManager : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                LevelCompletedText.SetActive(false);
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                DataToJSON.Instance.Load();
             }
         }
 
+        if (GameObject.FindGameObjectWithTag("Brick") == null && !m_GameOver) {
+            LevelCompletedText.SetActive(true);
+            Destroy(GameObject.Find("Ball"));
+            m_GameOver = true;
+            GameOver();
+        }
     }
 
     void AddPoint(int point)
@@ -84,24 +93,8 @@ public class MainManager : MonoBehaviour
     {  
         m_GameOver = true;
         GameOverText.SetActive(true);
-        NameBestScore.text = "Best Score: " + " " + m_Points + " " + playerName;
-        CreateSave();
-        saveButton.gameObject.SetActive(true);
-    }
-
-    public DataToSave CreateSave() {
-        DataToSave save = new DataToSave();
-
-        save.scores.Add(m_Points);
-        save.playerNames.Add(playerName);
-        //save.score = m_Points;
-        //save.playerName = playerName;
-
-        return save;
-    }
-
-    public void SaveButton() {
-        
-        DataToJSON.Instance.Save(); 
+        DataToJSON.Instance.Save();
+        DataToJSON.Instance.Load();
+        NameBestScore.text = "Best Score: " + " " + DataToJSON.Instance.highScore.highScores[0].playerName + " " + DataToJSON.Instance.highScore.highScores[0].playerScore;
     }
 }
