@@ -39,9 +39,13 @@ public class ExitMenu : MonoBehaviour
                 GameObject.Find("MenuObjects").GetComponent<CanvasGroup>().alpha = 1.0f;
                 GameObject.Find("MenuObjects").GetComponent<CanvasGroup>().blocksRaycasts = true;
                 GameObject.Find("MenuObjects").GetComponent<CanvasGroup>().interactable = true;
-                Time.timeScale = 0.0f;
+                Time.timeScale = 0.0f; 
             }    
         } 
+    }
+
+    public void ExitMenuVolumeSlider() {
+        SceneDataCarrier.Instance.VolumeChange();
     }
 
     public void RestartGame() {

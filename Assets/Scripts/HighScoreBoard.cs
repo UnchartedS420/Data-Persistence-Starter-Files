@@ -31,13 +31,12 @@ public class HighScoreBoard : MonoBehaviour
     }
 
     private void CreateHighScoreEntries() {
-
-        float customPosY = 0;
-        Vector3 spawnEntryPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-
+        int customPosY = 0;
         for (int i = 0; i < maxList; i++) {
-            GameObject Clone = Instantiate(entryPrefab, spawnEntryPosition + new Vector3(0, customPosY, 0), entryPrefab.transform.rotation);
+            GameObject Clone = Instantiate(entryPrefab, transform.position, transform.rotation);
             Clone.transform.SetParent(this.transform);
+            Clone.transform.localScale = new Vector3(1, 1, 1);
+            Clone.transform.localPosition = new Vector3(0, customPosY, 0);
             customPosY -= entryPrefabSpacing;
             entries.Add(Clone);   
         }
