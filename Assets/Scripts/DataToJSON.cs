@@ -74,6 +74,8 @@ public class DataToJSON : MonoBehaviour
             highScoreBoard.SetPopulatedVariablesToZero();
             highScoreBoard.DestroyHighScoreEntries();
             highScore.highScores.Clear();
+            highScore.name = "";
+            highScore.score = "";
             highScoreBoard.jsonIsLoaded = false;
 
         }else{
